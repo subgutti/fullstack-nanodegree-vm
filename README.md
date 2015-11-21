@@ -40,6 +40,6 @@ The project uses two tables and a view to meet the requirements
 **_`player_standings`_** - A view showing each player's standings.
 Relies on `players` and `matches` tables
 ```
- id  |     name     | wins | matches
------+--------------+------+---------
+ id  | name | wins | matches
+-----+------+------+---------
 ```

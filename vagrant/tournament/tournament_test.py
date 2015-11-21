@@ -19,6 +19,7 @@ def testDelete():
 def testCount():
     deleteMatches()
     deletePlayers()
+    createTournament()
     c = countPlayers()
     if c == '0':
         raise TypeError(
@@ -31,6 +32,7 @@ def testCount():
 def testRegister():
     deleteMatches()
     deletePlayers()
+    createTournament()
     registerPlayer("Chandra Nalaar")
     c = countPlayers()
     if c != 1:
@@ -42,6 +44,7 @@ def testRegister():
 def testRegisterCountDelete():
     deleteMatches()
     deletePlayers()
+    createTournament()
     registerPlayer("Markov Chaney")
     registerPlayer("Joe Malik")
     registerPlayer("Mao Tsu-hsi")
@@ -60,6 +63,7 @@ def testRegisterCountDelete():
 def testStandingsBeforeMatches():
     deleteMatches()
     deletePlayers()
+    createTournament()
     registerPlayer("Melpomene Murray")
     registerPlayer("Randy Schwartz")
     standings = playerStandings()
@@ -84,6 +88,7 @@ def testStandingsBeforeMatches():
 def testReportMatches():
     deleteMatches()
     deletePlayers()
+    createTournament()
     registerPlayer("Bruno Walton")
     registerPlayer("Boots O'Neal")
     registerPlayer("Cathy Burton")
@@ -107,6 +112,7 @@ def testReportMatches():
 def testPairings():
     deleteMatches()
     deletePlayers()
+    createTournament()
     registerPlayer("Twilight Sparkle")
     registerPlayer("Fluttershy")
     registerPlayer("Applejack")
@@ -131,6 +137,7 @@ def testPairings():
 def testOddPairings():
     deleteMatches()
     deletePlayers()
+    createTournament()
     registerPlayer("Twilight Sparkle")
     registerPlayer("Fluttershy")
     registerPlayer("Applejack")
@@ -147,16 +154,38 @@ def testOddPairings():
             "For Five players, swissPairings should return three pairs.")
     [(pid1, pname1, pid2, pname2), (pid3, pname3, pid4, pname4),
      (pid5, pname5, pid6, pname6)] = pairings
-    correct_pairs = set([frozenset([id1, id5]), frozenset(
-        [id3, id2]), frozenset([id4, None])])
+    correct_pairs = set([frozenset([id1, id3]), frozenset(
+        [id5, id2]), frozenset([id4, None])])
     actual_pairs = set([frozenset([pid1, pid2]), frozenset(
         [pid3, pid4]), frozenset([pid5, None])])
     if correct_pairs != actual_pairs:
         raise ValueError(
-            "After one match, players with one win should be paired.")
+            "After one match, players with one win should be paired "
+            "and the odd one gets a bye")
     print "9. After one match, players with one win are paired and "
     "the odd one got a bye"
 
+
+def testPlayerCountPerTournament():
+    deleteMatches()
+    deletePlayers()
+    createTournament()
+    registerPlayer("Markov Chaney")
+    registerPlayer("Joe Malik")
+    c = countPlayers()
+    if c != 2:
+        raise ValueError(
+            "After registering two players, countPlayers should be 2.")
+    createTournament()
+    registerPlayer("Twilight Sparkle")
+    registerPlayer("Fluttershy")
+    registerPlayer("Applejack")
+    c = countPlayers()
+    if c != 3:
+        raise ValueError(
+            "After creatign new tournament and registering three players, "
+            "countPlayers should be 3.")
+    print "10. Players count matches to the tournament registered"
 
 if __name__ == '__main__':
     testDeleteMatches()
@@ -168,4 +197,5 @@ if __name__ == '__main__':
     testReportMatches()
     testPairings()
     testOddPairings()
+    testPlayerCountPerTournament()
     print "Success!  All tests pass!"

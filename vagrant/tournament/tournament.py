@@ -4,11 +4,32 @@
 #
 
 import psycopg2
+import random
 
 
 def connect():
     """Connect to the PostgreSQL database.  Returns a database connection."""
     return psycopg2.connect("dbname=tournament")
+
+
+def createTournament():
+    """Creates a new tournament."""
+    conn = connect()
+    c = conn.cursor()
+    c.execute("INSERT INTO tournament (name) VALUES (%s)",
+              ("tournament%d" % random.randint(0, 1000),))
+    conn.commit()
+    conn.close()
+
+
+def getCurrentTournament():
+    """Returns the current tournament id"""
+    conn = connect()
+    c = conn.cursor()
+    c.execute("SELECT id FROM tournament ORDER BY created_time DESC LIMIT 1;")
+    tournament_id = c.fetchone()
+    conn.close()
+    return tournament_id
 
 
 def deleteMatches():
@@ -33,7 +54,7 @@ def countPlayers():
     """Returns the number of players currently registered."""
     conn = connect()
     c = conn.cursor()
-    c.execute("SELECT id from players;")
+    c.execute("SELECT id from current_players;")
     conn.close()
     return c.rowcount
 
@@ -49,7 +70,8 @@ def registerPlayer(name):
     """
     conn = connect()
     c = conn.cursor()
-    c.execute("INSERT INTO players (name) VALUES (%s)", (name,))
+    c.execute("INSERT INTO players (name, tournament_id) VALUES (%s, %s)",
+              (name, getCurrentTournament()))
     conn.commit()
     conn.close()
 
@@ -69,7 +91,7 @@ def playerStandings():
     """
     conn = connect()
     c = conn.cursor()
-    c.execute("SELECT * FROM player_standings;")
+    c.execute("SELECT * FROM current_player_standings;")
     player_standings_list = c.fetchall()
     conn.close()
     return player_standings_list
@@ -84,8 +106,9 @@ def reportMatch(winner, loser):
     """
     conn = connect()
     c = conn.cursor()
-    c.execute("INSERT INTO matches (winner, loser) VALUES (%s, %s)",
-              (winner, loser,))
+    c.execute("INSERT INTO matches (tournament_id, winner, loser)"
+              "VALUES (%s, %s, %s)",
+              (getCurrentTournament(), winner, loser,))
     conn.commit()
     conn.close()
 
@@ -110,9 +133,7 @@ def swissPairings():
     if len(player_standings) % 2 == 0:
         matches = generateMatches(player_standings)
     else:
-        print player_standings
         player_standings = movePlayerEligibleForByeToEnd(player_standings)
-        print player_standings
         matches = generateMatches(player_standings[:-1])
         bye_match = (player_standings[-1][0],
                      player_standings[-1][1],
@@ -145,7 +166,6 @@ def generateMatches(player_standings):
                  player_standings[index][1],
                  player_standings[index + 1][0],
                  player_standings[index + 1][1])
-        print match
         matches.append(match)
         index = index + 2  # as two players are added to a match
     return matches

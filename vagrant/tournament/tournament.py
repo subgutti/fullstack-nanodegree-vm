@@ -46,7 +46,7 @@ def registerPlayer(name):
     """
     conn = connect()
     c = conn.cursor()
-    c.execute("INSERT INTO players (name) VALUES ('{0}')".format(name))
+    c.execute("INSERT INTO players (name) VALUES (%s)", (name,))
     conn.commit()
     conn.close()
 
@@ -63,7 +63,12 @@ def playerStandings():
         wins: the number of matches the player has won
         matches: the number of matches the player has played
     """
-
+    conn = connect()
+    c = conn.cursor()
+    c.execute("SELECT * FROM player_standings;")
+    player_standings_list = c.fetchall()
+    conn.close()
+    return player_standings_list 
 
 def reportMatch(winner, loser):
     """Records the outcome of a single match between two players.
@@ -72,7 +77,11 @@ def reportMatch(winner, loser):
       winner:  the id number of the player who won
       loser:  the id number of the player who lost
     """
- 
+    conn = connect()
+    c = conn.cursor()
+    c.execute("INSERT INTO matches VALUES (%s, %s)", (winner, loser,))
+    conn.commit()
+    conn.close() 
  
 def swissPairings():
     """Returns a list of pairs of players for the next round of a match.
@@ -89,5 +98,15 @@ def swissPairings():
         id2: the second player's unique id
         name2: the second player's name
     """
+    player_standings = playerStandings()
+    index = 0
+    matches = []
+    if len(player_standings) % 2 != 0:
+	raise ValueError("Number of players should be even")
+     
+    while index < len(player_standings):
+	match = (player_standings[index][0], player_standings[index][1], player_standings[index+1][0], player_standings[index+1][1])
+        matches.append(match)
+        index = index + 2 #as two players are added to a match
 
-
+    return matches

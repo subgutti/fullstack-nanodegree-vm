@@ -84,7 +84,8 @@ def reportMatch(winner, loser):
     """
     conn = connect()
     c = conn.cursor()
-    c.execute("INSERT INTO matches VALUES (%s, %s)", (winner, loser,))
+    c.execute("INSERT INTO matches (winner, loser) VALUES (%s, %s)",
+              (winner, loser,))
     conn.commit()
     conn.close()
 
@@ -92,10 +93,9 @@ def reportMatch(winner, loser):
 def swissPairings():
     """Returns a list of pairs of players for the next round of a match.
 
-    Assuming that there are an even number of players registered, each player
-    appears exactly once in the pairings.  Each player is paired with another
-    player with an equal or nearly-equal win record, that is, a player adjacent
-    to him or her in the standings.
+    Each player appears exactly once in the pairings.  Each player is paired
+    with another player with an equal or nearly-equal win record, that is,
+    a player adjacent to him or her in the standings.
 
     Returns:
       A list of tuples, each of which contains (id1, name1, id2, name2)
@@ -107,15 +107,67 @@ def swissPairings():
     player_standings = playerStandings()
     index = 0
     matches = []
-    if len(player_standings) % 2 != 0:
-        raise ValueError("Number of players should be even")
+    if len(player_standings) % 2 == 0:
+        matches = generateMatches(player_standings)
+    else:
+        print player_standings
+        player_standings = movePlayerEligibleForByeToEnd(player_standings)
+        print player_standings
+        matches = generateMatches(player_standings[:-1])
+        bye_match = (player_standings[-1][0],
+                     player_standings[-1][1],
+                     None,
+                     None)
+        matches.append(bye_match)
 
+    return matches
+
+
+def generateMatches(player_standings):
+    """Pairs the players for the next round of a match.
+
+    The total number of players should be even.
+
+    Returns:
+      A list of tuples, each of which contains (id1, name1, id2, name2)
+        id1: the first player's unique id
+        name1: the first player's name
+        id2: the second player's unique id
+        name2: the second player's name
+    """
+    if len(player_standings) % 2 != 0:
+        raise ValueError("Total players should be even")
+
+    matches = []
+    index = 0
     while index < len(player_standings):
         match = (player_standings[index][0],
                  player_standings[index][1],
                  player_standings[index + 1][0],
                  player_standings[index + 1][1])
+        print match
         matches.append(match)
         index = index + 2  # as two players are added to a match
-
     return matches
+
+
+def movePlayerEligibleForByeToEnd(player_standings):
+    """ Sort the list by moving the player elligible for bye at the end
+
+    Returns:
+      A sorted list of player standings with the player elligible for
+      bye at the end
+    """
+    index = last_index = len(player_standings) - 1
+
+    if player_standings[index][4] == 0:
+        return player_standings
+    else:
+        while (index > 0):
+            if player_standings[index][4] == 0:
+                player_standings.insert(
+                    last_index, player_standings.pop(index))
+                break
+            index = index - 1
+
+    return player_standings

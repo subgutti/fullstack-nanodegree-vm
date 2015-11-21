@@ -25,28 +25,47 @@ CREATE TABLE players (
 
 -- Create the 'matches' table to keep track of matches
 CREATE TABLE matches (
+  id SERIAL PRIMARY KEY,
   winner integer NOT NULL REFERENCES players (id),
-  loser integer NOT NULL REFERENCES players (id),
-  PRIMARY KEY (winner, loser)
+  loser integer NULL REFERENCES players (id),
+  UNIQUE (winner, loser)
 );
 \echo 'Created "matches" table'
+
+-- Create the player byes view
+CREATE VIEW player_byes
+AS
+SELECT
+  winner AS id,
+  COUNT(CASE
+    WHEN loser IS NULL THEN 1
+  END) AS byes
+FROM matches
+GROUP BY winner;
+\echo 'Created "player_byes" view'
 
 -- Create the player standings view
 CREATE VIEW player_standings
 AS
 SELECT
-  id,
+  players.id,
   name,
   COALESCE((SELECT
     COUNT(*)
   FROM matches
-  WHERE id = matches.winner), 0) AS wins,
+  WHERE players.id = matches.winner), 0) AS wins,
   (SELECT
     COUNT(*)
   FROM matches
-  WHERE id = matches.winner
-  OR id = matches.loser)
-  AS matches
+  WHERE players.id = matches.winner
+  OR players.id = matches.loser)
+  AS matches,
+  (CASE
+    WHEN byes IS NULL THEN 0
+    ELSE byes
+  END)
 FROM players
+LEFT JOIN player_byes
+  ON players.id = player_byes.id
 ORDER BY wins DESC;
 \echo 'Created "player_standings" view'

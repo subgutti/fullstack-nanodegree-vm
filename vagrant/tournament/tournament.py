@@ -57,7 +57,7 @@ def registerPlayer(name):
 def playerStandings():
     """Returns a list of the players and their win records, sorted by wins.
 
-    The first entry in the list should be the player in first place, or a 
+    The first entry in the list should be the player in first place, or a
     player tied for first place if there is currently a tie.
 
     Returns:
@@ -111,8 +111,9 @@ def swissPairings():
         raise ValueError("Number of players should be even")
 
     while index < len(player_standings):
-        match = (player_standings[index][0], player_standings[index][
-                 1], player_standings[index + 1][0],
+        match = (player_standings[index][0],
+                 player_standings[index][1],
+                 player_standings[index + 1][0],
                  player_standings[index + 1][1])
         matches.append(match)
         index = index + 2  # as two players are added to a match

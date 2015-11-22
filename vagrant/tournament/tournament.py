@@ -26,7 +26,7 @@ def getCurrentTournament():
     """Returns the current tournament id"""
     conn = connect()
     c = conn.cursor()
-    c.execute("SELECT id FROM tournament ORDER BY created_time DESC LIMIT 1;")
+    c.execute("SELECT id FROM tournament ORDER BY created_time DESC;")
     tournament_id = c.fetchone()
     conn.close()
     return tournament_id
@@ -54,9 +54,10 @@ def countPlayers():
     """Returns the number of players currently registered."""
     conn = connect()
     c = conn.cursor()
-    c.execute("SELECT id from current_players;")
+    c.execute("SELECT COUNT(*) from current_players;")
+    players_count = c.fetchone()
     conn.close()
-    return c.rowcount
+    return players_count[0]
 
 
 def registerPlayer(name):
@@ -88,6 +89,7 @@ def playerStandings():
         name: the player's full name (as registered)
         wins: the number of matches the player has won
         matches: the number of matches the player has played
+        byes: the number of matches the player got bye
     """
     conn = connect()
     c = conn.cursor()
@@ -131,8 +133,15 @@ def swissPairings():
     index = 0
     matches = []
     if len(player_standings) % 2 == 0:
+        # For even number of players in tournament generate
+        # matches/pairings directly
         matches = generateMatches(player_standings)
     else:
+        # For odd number of players in tournament
+        # 1. Move the player eligible for bye to the end of list
+        # 2. Generate matches/parirings for remaining players
+        #    (ignore the last one)
+        # 3. Add the bye match for the last player
         player_standings = movePlayerEligibleForByeToEnd(player_standings)
         matches = generateMatches(player_standings[:-1])
         bye_match = (player_standings[-1][0],
@@ -173,6 +182,11 @@ def generateMatches(player_standings):
 
 def movePlayerEligibleForByeToEnd(player_standings):
     """ Sort the list by moving the player elligible for bye at the end
+
+    Each player is elligible for only one bye. Inorder to identify the player
+    elligible for bye, traverse the list from bottom and identify the player
+    by checking their 'byes' value in 'current_player_standings' view. If
+    the value is 0 then the player is elligible for bye.
 
     Returns:
       A sorted list of player standings with the player elligible for

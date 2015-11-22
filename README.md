@@ -5,7 +5,22 @@ Tournament Planner
 Python module that uses the PostgreSQL database to keep track of players and matches a game tournament and will use the swiss system for pairing up player in each round.
 
 ## Instructions
-To verify
+Clone the package
+
+Run vagrant
+```
+cd vagrant
+vagrant up
+vagrant ssh
+```
+
+Inside vagrant shell, initialize database
+```
+cd /vagrant
+psql -f tournament.sql
+```
+
+Verify
 ```
 python tournament/tournament_test.py
 ```
@@ -21,7 +36,7 @@ Python module that interacts with the PostgreSQL database and provides helpful m
 Test cases for `tournament.py` methods
 
 ## Database
-The project uses two tables and a view to meet the requirements
+The project uses two tables and several views to meet the requirements
 
 #### Tables
 **`tournament`** - Stores tournamen ID, name and created time stamp

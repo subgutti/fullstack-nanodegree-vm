@@ -68,7 +68,7 @@ def testStandingsBeforeMatches():
     registerPlayer("Randy Schwartz")
     standings = playerStandings()
     if len(standings) < 2:
-        raise ValueError("Players should appear in playerStandings even"
+        raise ValueError("Players should appear in playerStandings even"\
                          "before they have played any matches.")
     elif len(standings) > 2:
         raise ValueError("Only registered players should appear in standings.")
@@ -80,7 +80,7 @@ def testStandingsBeforeMatches():
         raise ValueError(
             "Newly registered players should have no matches or wins.")
     if set([name1, name2]) != set(["Melpomene Murray", "Randy Schwartz"]):
-        raise ValueError("Registered players' names should appear in standings"
+        raise ValueError("Registered players' names should appear in standings"\
                          ", even if they have no matches played.")
     print "6. Newly registered players appear in the standings with no matches."
 
@@ -160,9 +160,9 @@ def testOddPairings():
         [pid3, pid4]), frozenset([pid5, None])])
     if correct_pairs != actual_pairs:
         raise ValueError(
-            "After one match, players with one win should be paired "
+            "After one match, players with one win should be paired "\
             "and the odd one gets a bye")
-    print "9. After one match, players with one win are paired and "
+    print "9. After one match, players with one win are paired and "\
     "the odd one got a bye"
 
 
@@ -183,7 +183,7 @@ def testPlayerCountPerTournament():
     c = countPlayers()
     if c != 3:
         raise ValueError(
-            "After creatign new tournament and registering three players, "
+            "After creatign new tournament and registering three players, "\
             "countPlayers should be 3.")
     print "10. Players count matches to the tournament registered"
 

@@ -33,6 +33,7 @@ CREATE TABLE players (
 \echo 'Created "players" table'
 
 -- Create the 'matches' table to keep track of matches
+-- 'null' value in loser, means that match is a bye
 CREATE TABLE matches (
   id SERIAL PRIMARY KEY,
   tournament_id integer REFERENCES tournament(id),

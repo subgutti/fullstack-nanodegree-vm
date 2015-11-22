@@ -14,7 +14,9 @@ vagrant up
 vagrant ssh
 ```
 
-Inside vagrant shell, initialize database
+Inside vagrant shell
+
+initialize database
 ```
 cd /vagrant
 psql -f tournament.sql

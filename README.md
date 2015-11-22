@@ -24,22 +24,56 @@ Test cases for `tournament.py` methods
 The project uses two tables and a view to meet the requirements
 
 #### Tables
-**`players`** - Stores player ID and name
+**`tournament`** - Stores tournamen ID, name and created time stamp
+```
+ id | name | created_time
+----+------+--------------
+```
+
+**`players`** - Stores player ID, name and tournament id
 ```
  id | name
 ----+-----
 ```
 
-**`matches`** - Stores winner and loser player id
+**`matches`** - Stores tournament id, winner and loser player id
 ```
  winner | loser
 --------+-------
 ```
 
 #### Views
-**_`player_standings`_** - A view showing each player's standings.
-Relies on `players` and `matches` tables
+**_`current_tournament`_** A view showing the current active tournament
+Relies on 'tournament' table
 ```
- id  | name | wins | matches
------+------+------+---------
+ id 
+----
+```
+
+**`current_players`** - A view showing players in the current tournament
+Relies on 'tournament' and 'player' tables
+```
+ id | name
+----+-----
+```
+
+**`current_matches`** - A view showing matches in the current tournament
+Relies on 'tournament and 'matches' table
+```
+ id | winner | loser
+----+--------+-------
+```
+
+**`current_player_byes`** - A view showing players bye count in the current tournament
+Relies on 'current_matches' view
+```
+ id | byes
+----+-----
+```
+
+**_`current_player_standings`_** - A view showing each player's standings in the current tournament
+Relies on `current_players`, `current_matches` and `current_player_byes` views
+```
+ id  | name | wins | matches | byes
+-----+------+------+---------+------
 ```

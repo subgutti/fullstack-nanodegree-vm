@@ -1,0 +1,56 @@
+* {
+    font-family: "Helvetica Neue Bold", Roboto, Helvetica, Arial, sans-serif;
+    font-weight: 700;
+}
+
+h1 {
+    font-family: "Helvetica Neue Light", Roboto, Helvetica, Arial, sans-serif;
+    font-size: 50px;
+    color: #51453B;
+    line-height: 60px;
+    font-weight: 300;
+}
+
+h2 {
+    font-size: 24px;
+    color: #42C3C9;
+    line-height: 29px;
+}
+
+h3 {
+    font-size: 18px;
+    color: #4A4A4A;
+    line-height: 23px;
+}
+
+p {
+    font-family: "Helvetica Neue", Roboto, Helvetica, Arial, sans-serif;
+    font-size: 16px;
+    color: #7B7573;
+    line-height: 24px;
+    font-weight: 400;
+}
+
+strong {
+    font-size: 16px;
+    color: #7B7573;
+    line-height: 24px;
+}
+
+a {
+    font-size: 14px;
+    color: #0093B9;
+    line-height: 17px;
+}
+
+.padding-top {
+    padding-top: 30px;
+}
+
+.right-divider {
+    border-right: thick solid #9FB80A;
+}
+
+.header-border {
+    border-bottom: thin inset #ff0000;
+}

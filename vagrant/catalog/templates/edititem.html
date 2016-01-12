@@ -1,0 +1,34 @@
+{% extends "main.html" %} {% block content %} {% include "header.html" %}
+</script>
+<div class="row col-md-7">
+    <div class="page-header">
+        <h3>Edit Item</h3>
+    </div>
+</div>
+<div class="row col-md-6">
+    <form action="#" method="post">
+        <div class="form-group">
+            <label for="name">Name:</label>
+            <input type="text" minlength="5" maxlength="80" class="form-control" name="name" placeholder="Name" value="{{ item.title }}">
+            <div class="padding-top">
+                <label for="description">Description:</label>
+                <textarea class="form-control" minlength="10" maxlength="250" rows="3" name="description" placeholder="Description">{{item.description}}</textarea>
+            </div>
+            <div class="padding-top">
+                <label for="category">Category:</label>
+                <select class="form-control" name="category">
+                    {% for category in categories %}
+                    {% if category.id == item.category_id %}
+                        <option value="{{ category.id }}" selected>{{ category.name }}</option>
+                    {% else %}
+                        <option value="{{ category.id }}">{{ category.name }}</option>
+                    {% endif %} {% endfor %}
+                </select>
+            </div>
+            <div class="padding-top">
+                <button type="submit" class="btn btn-default" id="submit" type="submit">Save</button>
+            </div>
+        </div>
+    </form>
+</div>
+{% endblock %}

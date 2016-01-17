@@ -43,6 +43,11 @@ a {
     line-height: 17px;
 }
 
+img.thumbnail {
+   width: 150px;
+   height: 250px;
+}
+
 .padding-top {
     padding-top: 30px;
 }

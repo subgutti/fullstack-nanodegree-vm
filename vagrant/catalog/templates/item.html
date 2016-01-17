@@ -25,15 +25,20 @@
             {% endfor %}
         </div>
         <div class="col-sm-9">
-            <p>
-                <h3>{{ selectedItem.title }}</h3></p>
-            <p>{{ selectedItem.description }}</p>
-            {% if session['user_id'] == selectedItem.user_id %}
-            <p>
-                <a href='{{url_for('editItem', item_name = selectedItem.title) }}'>Edit</a> |
-                <a href='{{ url_for('deleteItem', item_name = selectedItem.title) }}'>Delete</a>
-            </p>
-            {% endif %}
+            <div class="col-md-3">
+                <img class="thumbnail" src="{% if selectedItem.image %} {{ selectedItem.image }} {% else %} {{ url_for('static', filename='item_placeholder.jpg') }} {% endif %}" alt=" {{ selectedItem.title }} ">
+            </div>
+            <div class="col-md-6 ">
+                <p>
+                    <h3>{{ selectedItem.title }}</h3></p>
+                <p>{{ selectedItem.description }}</p>
+                {% if session['user_id'] == selectedItem.user_id %}
+                <p>
+                    <a href='{{url_for('editItem', item_name=selectedItem.title)}}'>Edit</a>
+                    <a href='{{url_for('deleteItem', item_name=selectedItem.title)}}'>Delete</a>
+                </p>
+                {% endif %}
+            </div>
         </div>
     </div>
 </div>

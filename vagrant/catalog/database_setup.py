@@ -5,6 +5,8 @@ from sqlalchemy import create_engine
 
 Base = declarative_base()
 
+# User class to keep track of logged in users
+
 
 class User(Base):
     __tablename__ = 'user'
@@ -12,6 +14,8 @@ class User(Base):
     name = Column(String(250), nullable=False)
     email = Column(String(250), nullable=False)
     picture = Column(String(250))
+
+# Category in a catalog an item belongs to
 
 
 class Category(Base):
@@ -30,6 +34,8 @@ class Category(Base):
             'name': self.name,
         }
 
+# Individual item in a catalog
+
 
 class Item(Base):
     __tablename__ = 'item'
@@ -37,6 +43,7 @@ class Item(Base):
     id = Column(Integer, primary_key=True)
     title = Column(String(80), nullable=False)
     description = Column(String(250))
+    image = Column(String(500))
     category_id = Column(Integer, ForeignKey('category.id'))
     category = relationship(Category)
     user_id = Column(Integer, ForeignKey('user.id'))

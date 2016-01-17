@@ -9,19 +9,22 @@
     <form action="#" method="post">
         <div class="form-group">
             <label for="name">Name:</label>
-            <input type="text" minlength="5" maxlength="80" class="form-control" name="name" placeholder="Name" value="{{ item.title }}">
+            <input type="text" minlength="5" maxlength="80" name="name" placeholder="Name" value="{{ item.title }}">
             <div class="padding-top">
                 <label for="description">Description:</label>
                 <textarea class="form-control" minlength="10" maxlength="250" rows="3" name="description" placeholder="Description">{{item.description}}</textarea>
             </div>
             <div class="padding-top">
+                <label for="image">Image URL:</label>
+                <input type="text" minlength="10" maxlength="500" name="image" placeholder="Image URL" value="{{ item.image }}">
+            </div>
+            <div class="padding-top">
                 <label for="category">Category:</label>
                 <select class="form-control" name="category">
-                    {% for category in categories %}
-                    {% if category.id == item.category_id %}
-                        <option value="{{ category.id }}" selected>{{ category.name }}</option>
+                    {% for category in categories %} {% if category.id == item.category_id %}
+                    <option value="{{ category.id }}" selected>{{ category.name }}</option>
                     {% else %}
-                        <option value="{{ category.id }}">{{ category.name }}</option>
+                    <option value="{{ category.id }}">{{ category.name }}</option>
                     {% endif %} {% endfor %}
                 </select>
             </div>

@@ -43,7 +43,7 @@ session.commit()
 
 
 item3 = Item(title="Soccer Ball", description="Soccer balls allows players to train and play individually or with friends outside for practise",
-             category=category1, user_id=1)
+             category=category1, user_id=1, image="https://upload.wikimedia.org/wikipedia/en/e/ec/Soccer_ball.svg")
 session.add(item3)
 session.commit()
 
@@ -53,12 +53,12 @@ session.add(category2)
 session.commit()
 
 item4 = Item(title="Basketball Sneakers", description="Players should wear comfortable, properly fitting basketball sneakers.",
-             category=category2, user_id=1)
+             category=category2, user_id=1, image="http://ecx.images-amazon.com/images/I/91%2BXlOzjTwL._UX695_.jpg")
 session.add(item4)
 session.commit()
 
 item5 = Item(title="Knee Pads", description="Players should wear knee pads to protect themselves during falls or dives to the floor",
-             category=category1, user_id=1)
+             category=category2, user_id=1, image="http://ecx.images-amazon.com/images/I/41j6DLiGSJL.jpg")
 session.add(item5)
 session.commit()
 
@@ -68,12 +68,12 @@ session.add(category3)
 session.commit()
 
 item6 = Item(title="Baseball Glove", description="The quality of baseball gloves varies based mostly on the material (usually leather) that it's made out of. There are some very high end leather gloves on the market that are north of $500! These gloves are used mostly by professional players.",
-             category=category3, user_id=1)
+             category=category3, user_id=1, image="http://ecx.images-amazon.com/images/I/51VqFOSQKXL.jpg")
 session.add(item6)
 session.commit()
 
 item7 = Item(title="Baseball Bat", description="You can't really play baseball without a bat! While there is a ton of fun to be had by just getting your glove on and playing catch with a friend, the game itself involves hitting and that means a bat.",
-             category=category3, user_id=1)
+             category=category3, user_id=1, image="http://ecx.images-amazon.com/images/I/71hNsLWogPL._SX522_.jpg")
 session.add(item7)
 session.commit()
 

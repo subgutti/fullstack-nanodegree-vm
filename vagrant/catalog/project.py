@@ -1,4 +1,4 @@
-from flask import Flask, render_template, url_for, request, redirect, flash
+from flask import Flask, render_template, url_for, request, redirect, flash, jsonify
 from sqlalchemy import create_engine, asc, desc, and_
 from sqlalchemy.orm import sessionmaker
 from database_setup import Base, User, Category, Item
@@ -22,6 +22,41 @@ Base.metadata.bind = engine
 
 DBSession = sessionmaker(bind=engine)
 session = DBSession()
+
+
+# JSON APIs to view Catalog Information
+@app.route('/catalog/JSON')
+def catalogJSON():
+    categories = session.query(Category).all()
+    response = []
+    for category in categories:
+        categoryJson = category.serialize
+        items = session.query(Item).filter_by(category_id=category.id).all()
+        if items:
+            categoryJson['item'] = [i.serialize for i in items]
+        response.append(categoryJson)
+
+    return jsonify(Category=response)
+
+
+@app.route('/catalog/<int:category_id>/JSON')
+def categoryJSON(category_id):
+    items = session.query(Item).filter_by(category_id=category_id).all()
+    if items:
+        return jsonify(Item=[i.serialize for i in items])
+    else:
+        return ('', 204)
+
+
+@app.route('/catalog/<int:category_id>/<int:item_id>/JSON')
+def itemJSON(category_id, item_id):
+    item = session.query(Item).filter_by(
+        id=item_id).filter_by(category_id=category_id).one()
+    if item:
+        return jsonify(Item=[item.serialize])
+    else:
+        return ('', 204)
+
 
 # User connect
 # Create anti-forgery state token
@@ -300,21 +335,27 @@ def showCatalog():
 def showCategoryItems(category_name):
     categories = session.query(Category).order_by(asc(Category.name))
     currentCategory = session.query(
-        Category).filter_by(name=category_name).one()
-    categoryItems = session.query(Item).filter_by(
-        category_id=currentCategory.id).all()
-    return render_template('category.html', categories=categories, currentCategory=currentCategory, categoryItems=categoryItems)
+        Category).filter_by(name=category_name).first()
+    if currentCategory:
+        categoryItems = session.query(Item).filter_by(
+            category_id=currentCategory.id).all()
+        return render_template('category.html', categories=categories, currentCategory=currentCategory, categoryItems=categoryItems)
+    else:
+        return redirect(url_for('showCatalog'))
 
 
 @app.route('/<string:category_name>/<string:item_name>')
 def showItem(category_name, item_name):
     selectedCategory = session.query(
-        Category).filter_by(name=category_name).one()
-    selectedCategoryItems = session.query(Item).filter_by(
-        category_id=selectedCategory.id).all()
-    selectedItem = session.query(Item).filter_by(
-        title=item_name).filter_by(category_id=selectedCategory.id).one()
-    return render_template('item.html', selectedCategory=selectedCategory, selectedCategoryItems=selectedCategoryItems, selectedItem=selectedItem)
+        Category).filter_by(name=category_name).first()
+    if selectedCategory:
+        selectedCategoryItems = session.query(Item).filter_by(
+            category_id=selectedCategory.id).all()
+        selectedItem = session.query(Item).filter_by(
+            title=item_name).filter_by(category_id=selectedCategory.id).one()
+        return render_template('item.html', selectedCategory=selectedCategory, selectedCategoryItems=selectedCategoryItems, selectedItem=selectedItem)
+    else:
+        return redirect(url_for('showCatalog'))
 
 
 @app.route('/catalog/item/add', methods=['GET', 'POST'])
@@ -323,7 +364,7 @@ def addItem():
         return redirect('/login')
     if request.method == 'POST':
         newItem = Item(title=request.form['name'], description=request.form[
-            'description'], category_id=request.form['category'], user_id=login_session['user_id'])
+            'description'], image=request.form['image'], category_id=request.form['category'], user_id=login_session['user_id'])
         session.add(newItem)
         session.commit()
         flash('Item successfully created : %s' % (newItem.title))
@@ -337,7 +378,9 @@ def addItem():
 def editItem(item_name):
     if 'username' not in login_session:
         return redirect(url_for('showLogin'))
-    itemToEdit = session.query(Item).filter_by(title=item_name).one()
+    itemToEdit = session.query(Item).filter_by(title=item_name).first()
+    if not itemToEdit:
+        return redirect(url_for('showCatalog'))
     if login_session['user_id'] != itemToEdit.user_id:
         return "<script>function myFunction() {alert('You are not authorized to edit this item. Please create your own item in order to edit.');}</script><body onload='myFunction()''>"
     if request.method == 'POST':
@@ -345,6 +388,8 @@ def editItem(item_name):
             itemToEdit.title = request.form['name']
         if request.form['description']:
             itemToEdit.description = request.form['description']
+        if request.form['image']:
+            itemToEdit.image = request.form['image']
         if request.form['category']:
             itemToEdit.category_id = request.form['category']
         session.add(itemToEdit)
@@ -360,7 +405,9 @@ def editItem(item_name):
 def deleteItem(item_name):
     if 'username' not in login_session:
         return redirect(url_for('showLogin'))
-    itemToDelete = session.query(Item).filter_by(title=item_name).one()
+    itemToDelete = session.query(Item).filter_by(title=item_name).first()
+    if not itemToDelete:
+        return redirect(url_for('showCatalog'))
     if login_session['user_id'] != itemToDelete.user_id:
         return "<script>function myFunction() {alert('You are not authorized to delete this item. Please create your own item in order to delete.');}</script><body onload='myFunction()''>"
     if request.method == 'POST':

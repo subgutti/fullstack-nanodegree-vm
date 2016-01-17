@@ -1,6 +1,14 @@
-{% extends "main.html" %} {% block content %} {% include "header.html" %} {% with messages = get_flashed_messages() %} {% if messages %} {% for message in messages %}
+{% extends "main.html" %}
+{% block content %}
+{% include "header.html" %}
+
+{% with messages = get_flashed_messages() %}
+{% if messages %} {% for message in messages %}
 <div class="alert alert-info" role="alert">{{message}} </div>
-{% endfor %} {% endif %} {% endwith %}
+{% endfor %}
+{% endif %}
+{% endwith %}
+
 <div class="col-md-12">
     <div class="row">
         <div class="col-sm-2 right-divider">

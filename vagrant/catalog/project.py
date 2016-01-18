@@ -6,6 +6,7 @@ from database_setup import Base, User, Category, Item
 from flask import session as login_session
 from oauth2client.client import flow_from_clientsecrets
 from oauth2client.client import FlowExchangeError
+from functools import wraps
 
 import random
 import string
@@ -118,7 +119,8 @@ def fbconnect():
         'web']['app_id']
     app_secret = json.loads(
         open('fb_client_secrets.json', 'r').read())['web']['app_secret']
-    url = "https://graph.facebook.com/oauth/access_token?grant_type=fb_exchange_token&client_id=%s&client_secret=%s&fb_exchange_token=%s" % (app_id, app_secret, access_token)
+    url = "https://graph.facebook.com/oauth/access_token?grant_type=fb_exchange_token&client_id=%s&client_secret=%s&fb_exchange_token=%s" % (
+        app_id, app_secret, access_token)
     h = httplib2.Http()
     result = h.request(url, 'GET')[1]
 
@@ -459,7 +461,7 @@ def showItem(category_name, item_name):
         item doesn't exists then redirects to home page.
     """
     selectedCategory = session.query(
-        Category).filter_by(name=category_name).first()
+        Category).filter_by(name=category_name).one()
     if selectedCategory:
         selectedCategoryItems = session.query(Item).filter_by(
             category_id=selectedCategory.id).all()
@@ -473,7 +475,18 @@ def showItem(category_name, item_name):
         return redirect(url_for('showCatalog'))
 
 
+def login_required(f):
+    @wraps(f)
+    def decorated_function(*args, **kwargs):
+        if 'username' in login_session:
+            return f(*args, **kwargs)
+        else:
+            return redirect(url_for('showLogin'))
+    return decorated_function
+
+
 @app.route('/catalog/item/add', methods=['GET', 'POST'])
+@login_required
 def addItem():
     """Display a HTML page that allows user to add a new item.
     Also save the newly created item in database.
@@ -481,10 +494,17 @@ def addItem():
     Returns:
         HTML page that allows user to create new item. If user
         is not logged in, then redirects to login page.
+        If item with same already exists, displays a warning
+        message.
     """
-    if 'username' not in login_session:
-        return redirect('/login')
     if request.method == 'POST':
+        newTitle = request.form['name']
+        newItem = session.query(Item).filter_by(title=newTitle).all()
+        if newItem:
+            return "<script>function myFunction() {alert('Item with " \
+                "same name already exist. Please give a different " \
+                "item name.');window.location.href='/';}" \
+                "</script><body onload='myFunction()''>"
         newItem = Item(title=request.form['name'],
                        description=request.form['description'],
                        image=request.form['image'],
@@ -500,6 +520,7 @@ def addItem():
 
 
 @app.route('/catalog/<string:item_name>/edit', methods=['GET', 'POST'])
+@login_required
 def editItem(item_name):
     """Display a HTML page that allows user to edit an item.
     Also save the newly edit item in database.
@@ -511,18 +532,26 @@ def editItem(item_name):
         HTML page that allows user to edit an item.
         If user is not logged in, then redirects to login page.
         If user is not authorized to edit, displays a warning message.
+        If new item name already exists, displays a warning
+        message.
     """
-    if 'username' not in login_session:
-        return redirect(url_for('showLogin'))
-    itemToEdit = session.query(Item).filter_by(title=item_name).first()
+    itemToEdit = session.query(Item).filter_by(title=item_name).one()
     if not itemToEdit:
         return redirect(url_for('showCatalog'))
     if login_session['user_id'] != itemToEdit.user_id:
         return "<script>function myFunction() {alert('You are not " \
             "authorized to edit this item. Please create your own " \
-            "item in order to edit.');}" \
+            "item in order to edit.');" \
             "</script><body onload='myFunction()''>"
     if request.method == 'POST':
+        newTitle = request.form['name']
+        if newTitle != itemToEdit.title:
+            newItem = session.query(Item).filter_by(title=newTitle).first()
+            if newItem:
+                return "<script>function myFunction() {alert('Item with " \
+                    "same name already exist. Please give a different " \
+                    "item name.');window.location.href='/';}" \
+                    "</script><body onload='myFunction()''>"
         if request.form['name']:
             itemToEdit.title = request.form['name']
         if request.form['description']:
@@ -543,6 +572,7 @@ def editItem(item_name):
 
 
 @app.route('/catalog/<string:item_name>/delete', methods=['GET', 'POST'])
+@login_required
 def deleteItem(item_name):
     """Display a HTML page that allows user to delete an item.
     Also delete the item in database.
@@ -555,9 +585,7 @@ def deleteItem(item_name):
         If user is not logged in, then redirects to login page.
         If user is not authorized to delete, displays a warning message.
     """
-    if 'username' not in login_session:
-        return redirect(url_for('showLogin'))
-    itemToDelete = session.query(Item).filter_by(title=item_name).first()
+    itemToDelete = session.query(Item).filter_by(title=item_name).one()
     if not itemToDelete:
         return redirect(url_for('showCatalog'))
     if login_session['user_id'] != itemToDelete.user_id:

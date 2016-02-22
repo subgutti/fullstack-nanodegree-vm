@@ -1,6 +1,3 @@
-Tournament Planner
-==================
-
 ## Summary
 This repository contains two projects
 * Tournament : Python module that uses the PostgreSQL database to keep track of players and matches a game tournament and will use the swiss system for pairing up player in each round.
